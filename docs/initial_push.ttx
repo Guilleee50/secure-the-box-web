@@ -1,0 +1,90 @@
+¡Excelente! Al tener ya el repositorio creado para la parte web, el primer paso es asentar una base sólida y limpia. Dado que vas a trabajar con **Django** y **Django REST Framework (DRF)** para la API, aquí tienes la hoja de ruta técnica para arrancar hoy mismo:
+
+### 1. Preparación del entorno (Local)
+Clona tu repositorio y entra en la carpeta. Lo primero es crear un entorno virtual para no ensuciar tu sistema y asegurar que Iker y tú tengáis las mismas versiones:
+
+```bash
+# Crear el entorno virtual
+python -m venv venv
+
+# Activarlo (Windows)
+.\venv\Scripts\activate
+# Activarlo (Linux/Mac)
+source venv/bin/activate
+```
+
+### 2. Instalación de dependencias iniciales
+Instala Django y el framework para la API:
+
+```bash
+pip install django djangorestframework django-cors-headers
+```
+*(He incluido `django-cors-headers` porque lo necesitaréis para que vuestro script de las máquinas pueda hacer peticiones a la web sin problemas de políticas CORS).*
+
+### 3. Crear el proyecto y la primera App
+Estando en la raíz de tu repo:
+
+```bash
+# Crear el proyecto (el punto al final es importante para no crear carpetas extra)
+django-admin startproject core .
+
+# Crear la app donde irá la lógica de las puntuaciones y la API
+python manage.py startapp api
+```
+
+### 4. Configuración básica (`core/settings.py`)
+Abre el archivo `settings.py` y añade las librerías que hemos instalado en `INSTALLED_APPS`:
+
+```python
+INSTALLED_APPS = [
+    ...
+    'rest_framework',
+    'rest_framework.authtoken', # Para el sistema de tokens que comentamos
+    'corsheaders',
+    'api', # Tu nueva app
+]
+
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', # Añadir esto arriba del todo
+    ...
+]
+
+# Permitir que las máquinas se comuniquen con la API (puedes ajustarlo luego)
+CORS_ALLOW_ALL_ORIGINS = True 
+```
+
+### 5. Definir el Modelo de Puntuación (`api/models.py`)
+Para que la API funcione, necesita saber qué guardar. Un modelo sencillo para empezar:
+
+```python
+from django.db import models
+from django.contrib.auth.models import User
+
+class Score(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    machine_name = models.CharField(max_length=100)
+    points = models.IntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.machine_name}: {self.points}"
+```
+
+### 6. Migrar y Crear Superusuario
+Ejecuta las migraciones para crear la base de datos SQLite inicial y crea tu cuenta de administrador:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+```
+
+### 7. ¡Lanzamiento!
+Prueba que todo esté en orden:
+```bash
+python manage.py runserver
+```
+Si entras en `http://127.0.0.1:8000`, deberías ver la página de bienvenida de Django.
+
+
+
