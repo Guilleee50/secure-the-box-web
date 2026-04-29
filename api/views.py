@@ -22,6 +22,19 @@ def register_view(request):
 def docs_view(request):
     return render(request, 'docs.html')
 
+# Vista de solo lectura (puede ser pública o privada)
+def normativa_view(request):
+    return render(request, 'normativa.html')
+
+# Función para guardar la aceptación
+@login_required
+def aceptar_normativa(request):
+    if request.method == 'POST':
+        request.user.profile.normativa_aceptada = True
+        request.user.profile.save()
+        return redirect('panel') # O el nombre que tenga vuestra URL del panel
+    return redirect('home')
+
 @login_required # Obliga a estar logueado para ver esta página
 def panel_view(request):
     # 1. Gestionar el formulario de cambio de datos

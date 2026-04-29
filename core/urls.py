@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
-from api.views import register_view, docs_view, panel_view, validar_maquina_api
+from api.views import register_view, docs_view, panel_view, validar_maquina_api, normativa_view, aceptar_normativa
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,6 +29,8 @@ urlpatterns = [
     path('register/', register_view, name='register'),
     path('docs/', docs_view, name='docs'),
     path('panel/', panel_view, name='panel'),
+    path('normativa/', normativa_view, name='normativa'),
+    path('normativa/aceptar/', aceptar_normativa, name='aceptar_normativa'),
     # Rutas de la API
     path('api/v1/validar/', validar_maquina_api, name='api_validar'),
 ]

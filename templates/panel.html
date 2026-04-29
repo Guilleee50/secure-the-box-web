@@ -1,6 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if not request.user.profile.normativa_aceptada %}
+<div class="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+    <div class="bg-gray-900 border-2 border-red-500 rounded-lg max-w-2xl w-full p-8 shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+        
+        <h2 class="text-3xl font-bold text-red-500 mb-4 flex items-center">
+            <i class="fas fa-exclamation-triangle mr-3"></i> Rules of Engagement (RoE)
+        </h2>
+        
+        <div class="text-gray-300 space-y-4 mb-6 h-64 overflow-y-auto pr-2">
+            <p><strong>ATENCIÓN:</strong> Estás a punto de acceder al entorno de laboratorio de "Secure the Box".</p>
+            <ul class="list-disc pl-5 space-y-2 text-sm">
+                <li>Está estrictamente prohibido realizar ataques contra la infraestructura principal (web, base de datos).</li>
+                <li>Tus acciones quedarán registradas bajo tu API Key de Agente.</li>
+                <li>Las máquinas vulnerables son de uso exclusivo para las prácticas del laboratorio. No almacenes información personal en ellas.</li>
+                <li>Cualquier intento de fraude en el sistema de puntuación supondrá la expulsión directa.</li>
+            </ul>
+            <p class="text-sm italic text-gray-500 mt-4">Puedes consultar la versión completa en cualquier momento en el apartado <a href="{% url 'normativa' %}" class="text-cyan-500 underline" target="_blank">Normativa Legal</a>.</p>
+        </div>
+
+        <form action="{% url 'aceptar_normativa' %}" method="POST" class="flex justify-end">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded transition-colors duration-300 flex items-center">
+                <i class="fas fa-check-circle mr-2"></i> Acepto las reglas y quiero entrar
+            </button>
+        </form>
+
+    </div>
+</div>
+{% endif %}
 <div class="max-w-6xl mx-auto mt-10 p-6">
     
     <div class="mb-8">

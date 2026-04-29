@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-o$-foqyq@qokh*vqd3v8e99ovoodlh8on0zwmll2wd7&@(dm&5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['securethebox.cat','www.securethebox.cat', '18.210.225.192']
+ALLOWED_HOSTS = ['securethebox.cat','www.securethebox.cat', '18.210.225.192', 'localhost']
 
 
 # Application definition

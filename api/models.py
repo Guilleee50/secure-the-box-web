@@ -40,6 +40,9 @@ class SOCProfile(models.Model):
     # Relación para saber qué máquinas ha hecho
     maquinas_completadas = models.ManyToManyField(Maquina, blank=True)
 
+    #Normativa
+    normativa_aceptada = models.BooleanField(default=False)
+
     def __str__(self):
         return f"Perfil de {self.user.username}"
 
