@@ -8,6 +8,44 @@
         <p class="text-gray-400 font-mono mt-1">Usuario: {{ request.user.username }}</p>
     </div>
 
+    <div class="bg-gray-800 p-6 rounded-lg border border-cyan-500/30 shadow-lg mt-6">
+    <h3 class="text-xl font-bold text-cyan-400 mb-4 flex items-center">
+        <i class="fas fa-key mr-2"></i> Tu API Key de Agente
+    </h3>
+    
+    <p class="text-gray-400 text-sm mb-4">
+        Utiliza esta clave en tus scripts de validación local para sincronizar tus progresos con la plataforma.
+    </p>
+
+    <div class="flex items-center space-x-2">
+        <input type="text" 
+               id="apiKeyInput" 
+               value="{{ request.user.profile.api_key }}" 
+               readonly 
+               class="bg-gray-900 text-cyan-300 border border-gray-700 rounded-md px-4 py-2 w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-cyan-500">
+        
+        <button onclick="copyApiKey()" 
+                class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-md transition-colors flex items-center">
+            <i class="fas fa-copy"></i>
+        </button>
+    </div>
+    <span id="copyMessage" class="text-xs text-green-500 mt-2 hidden italic">¡Copiado al portapapeles!</span>
+</div>
+
+<script>
+function copyApiKey() {
+    var copyText = document.getElementById("apiKeyInput");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); // Para móviles
+    navigator.clipboard.writeText(copyText.value);
+    
+    // Mostrar mensaje de éxito
+    const msg = document.getElementById("copyMessage");
+    msg.classList.remove("hidden");
+    setTimeout(() => { msg.classList.add("hidden"); }, 2000);
+}
+</script>
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         
         <div class="md:col-span-1 bg-[#1e1e1e] border border-gray-700 rounded-lg p-6 shadow-lg h-fit">

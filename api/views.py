@@ -3,6 +3,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from .forms import PerfilForm
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 
 def register_view(request):
     if request.method == 'POST':
@@ -44,3 +47,31 @@ def panel_view(request):
         'puntos_totales': sum(m['puntos'] for m in maquinas_completadas) # Suma los puntos automáticamente
     }
     return render(request, 'panel.html', context)
+
+@api_view(['POST'])
+def validar_maquina_api(request):
+    api_key = request.data.get('api_key')
+    nombre_maquina = request.data.get('maquina')
+
+    try:
+        # 1. Buscar al usuario por su API Key
+        perfil = SOCProfile.objects.get(api_key=api_key)
+        
+        # 2. Buscar la máquina en la base de datos
+        maquina = Maquina.objects.get(nombre=nombre_maquina)
+
+        # 3. Evitar que sume puntos dos veces por la misma máquina
+        if maquina in perfil.maquinas_completadas.all():
+            return Response({"error": "Máquina ya completada anteriormente"}, status=400)
+
+        # 4. Sumar puntos y registrar
+        perfil.maquinas_completadas.add(maquina)
+        perfil.puntos_totales += maquina.puntos
+        perfil.save()
+
+        return Response({"status": "Puntos sumados", "total": perfil.puntos_totales})
+
+    except SOCProfile.DoesNotExist:
+        return Response({"error": "API Key inválida"}, status=403)
+    except Maquina.DoesNotExist:
+        return Response({"error": "Máquina no encontrada"}, status=404)
