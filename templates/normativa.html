@@ -1,7 +1,74 @@
-{% extends "base.html" %}
+{% extends 'base.html' %} {% block content %}
+<div class="max-w-4xl mx-auto mt-10 p-8 bg-gray-900 border border-gray-700 rounded-lg shadow-2xl text-gray-300">
+    
+    <div class="border-b border-cyan-500/50 pb-6 mb-8">
+        <h1 class="text-4xl font-extrabold text-white tracking-tight mb-2">
+            <span class="text-cyan-500">Secure the Box</span> | Rules of Engagement (RoE)
+        </h1>
+        <p class="text-sm text-gray-400 font-mono">Última actualización: 29/04/2026</p>
+    </div>
 
-{% block content %}
-<div>
-    <h1>Normativa</h1>
+    <section class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+            <i class="fas fa-file-contract text-cyan-500 mr-3"></i> 1. Introducción y Propósito
+        </h2>
+        <p class="mb-4 leading-relaxed">
+            Bienvenido al entorno de entrenamiento y validación de <strong>Secure the Box</strong>. Este documento define las Reglas de Enfrentamiento (RoE) y las políticas de uso aceptable para todos los Agentes SOC (usuarios) registrados en la plataforma.
+        </p>
+        <p class="leading-relaxed">
+            La participación en este entorno de laboratorio implica la aceptación incondicional de estas normas. El objetivo de esta plataforma es estrictamente educativo y de evaluación de competencias en fortificación de sistemas (Hardening) y respuesta a incidentes.
+        </p>
+    </section>
+
+    <section class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+            <i class="fas fa-crosshairs text-green-500 mr-3"></i> 2. Alcance Permitido (In-Scope)
+        </h2>
+        <p class="mb-4 leading-relaxed">
+            Las únicas acciones autorizadas dentro de la plataforma son:
+        </p>
+        <ul class="list-disc pl-6 space-y-2 text-gray-400">
+            <li>Acceso y auditoría de las máquinas virtuales etiquetadas explícitamente como "Entorno de Laboratorio" o "Máquina Vulnerable".</li>
+            <li>Ejecución de scripts de validación proporcionados por la plataforma (`check_hardening.py`) dentro de los entornos desplegados.</li>
+            <li>Modificación de configuraciones dentro de las máquinas objetivo con el único fin de mejorar su postura de seguridad (Hardening).</li>
+        </ul>
+    </section>
+
+    <section class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+            <i class="fas fa-ban text-red-500 mr-3"></i> 3. Restricciones Estrictas (Out-of-Scope)
+        </h2>
+        <div class="bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r">
+            <p class="font-semibold text-red-400 mb-2">Queda TERMINANTEMENTE PROHIBIDO:</p>
+            <ul class="list-disc pl-5 space-y-2 text-sm text-gray-300">
+                <li><strong>Ataques a la Infraestructura Core:</strong> Intentar comprometer, escanear o realizar ataques de denegación de servicio (DDoS) contra el servidor web principal, la base de datos MariaDB o la infraestructura subyacente de AWS.</li>
+                <li><strong>Manipulación de Puntuaciones:</strong> Falsificar peticiones HTTP/API, alterar el envío de la <code>api_key</code> o intentar sumar puntos por máquinas no resueltas legítimamente.</li>
+                <li><strong>Interferencia con otros Agentes:</strong> Atacar, monitorizar o interferir en los entornos de laboratorio de otros usuarios registrados.</li>
+                <li><strong>Uso de Malware Real:</strong> Desplegar ransomware, troyanos o herramientas destructivas no controladas dentro del entorno de laboratorio.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+            <i class="fas fa-eye text-cyan-500 mr-3"></i> 4. Monitorización y Privacidad
+        </h2>
+        <p class="leading-relaxed">
+            Como Agente SOC, entiendes y aceptas que <strong>todas tus acciones en la plataforma están monitorizadas</strong>. Registramos direcciones IP, uso de API Keys y telemetría de los scripts de validación con el fin de garantizar la integridad del sistema y evaluar el rendimiento académico. No almacenes información personal, contraseñas reales ni datos sensibles en las máquinas del laboratorio.
+        </p>
+    </section>
+
+    <section class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+            <i class="fas fa-gavel text-yellow-500 mr-3"></i> 5. Consecuencias por Infracción
+        </h2>
+        <p class="leading-relaxed">
+            Cualquier violación de estas Reglas de Enfrentamiento resultará en la <strong>revocación inmediata de tu API Key</strong>, la expulsión de la plataforma y la notificación a los administradores del sistema (Tribunal Evaluador) para la aplicación de las sanciones académicas o legales correspondientes.
+        </p>
+    </section>
+
+    <div class="mt-12 pt-6 border-t border-gray-700 text-center text-sm text-gray-500 font-mono">
+        Fin del Documento. Secure the Box Team - Ciberseguridad y Hardening.
+    </div>
 </div>
-{% endblock content %}
+{% endblock %}
