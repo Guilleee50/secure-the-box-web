@@ -6,6 +6,7 @@ from .forms import PerfilForm
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from api.models import SOCProfile
 
 def register_view(request):
     if request.method == 'POST':
@@ -88,3 +89,13 @@ def validar_maquina_api(request):
         return Response({"error": "API Key inválida"}, status=403)
     except Maquina.DoesNotExist:
         return Response({"error": "Máquina no encontrada"}, status=404)
+    
+def home_view(request):
+    # Obtenemos los 5 perfiles con más puntos (orden descendente: -puntos_totales)
+    # select_related('user') es un truco de optimización para que la DB vaya más rápido
+    top_hackers = SOCProfile.objects.select_related('user').order_by('-puntos_totales')[:5]
+    
+    context = {
+        'top_hackers': top_hackers
+    }
+    return render(request, 'index.html', context) 

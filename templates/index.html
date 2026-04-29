@@ -30,31 +30,32 @@
                 </tr>
             </thead>
             <tbody class="text-gray-300 font-mono text-sm">
-                <tr class="border-b border-gray-800 hover:bg-gray-800 transition">
-                    <td class="px-6 py-4 font-bold text-[#10b981]">#1</td>
-                    <td class="px-6 py-4 font-bold text-white">asd</td>
-                    <td class="px-6 py-4 text-right font-bold text-[#10b981]">1250 pts</td>
+                {% for perfil in top_hackers %}
+                <tr class="{% if not forloop.last %}border-b border-gray-800{% endif %} hover:bg-gray-800 transition">
+            
+                    <td
+                        class="px-6 py-4 {% if forloop.counter == 1 %}font-bold text-[#10b981]{% elif forloop.counter <= 3 %}text-gray-400{% else %}text-gray-500{% endif %}">
+                        #{{ forloop.counter }}
+                    </td>
+            
+                    <td
+                        class="px-6 py-4 {% if forloop.counter == 1 %}font-bold text-white{% elif forloop.counter >= 4 %}text-gray-400{% endif %}">
+                        {{ perfil.user.username }}
+                    </td>
+            
+                    <td
+                        class="px-6 py-4 text-right {% if forloop.counter == 1 %}font-bold text-[#10b981]{% elif forloop.counter >= 4 %}text-gray-400{% endif %}">
+                        {{ perfil.puntos_totales }} pts
+                    </td>
+            
                 </tr>
-                <tr class="border-b border-gray-800 hover:bg-gray-800 transition">
-                    <td class="px-6 py-4 text-gray-400">#2</td>
-                    <td class="px-6 py-4">manolo</td>
-                    <td class="px-6 py-4 text-right">980 pts</td>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="px-6 py-8 text-center text-gray-500 italic">
+                        Aún no hay agentes clasificados en el sistema.
+                    </td>
                 </tr>
-                <tr class="border-b border-gray-800 hover:bg-gray-800 transition">
-                    <td class="px-6 py-4 text-gray-400">#3</td>
-                    <td class="px-6 py-4">lo que sea</td>
-                    <td class="px-6 py-4 text-right">850 pts</td>
-                </tr>
-                <tr class="border-b border-gray-800 hover:bg-gray-800 transition">
-                    <td class="px-6 py-4 text-gray-500">#4</td>
-                    <td class="px-6 py-4 text-gray-400">iker_root</td>
-                    <td class="px-6 py-4 text-right text-gray-400">720 pts</td>
-                </tr>
-                <tr class="hover:bg-gray-800 transition">
-                    <td class="px-6 py-4 text-gray-500">#5</td>
-                    <td class="px-6 py-4 text-gray-400">guille_sec</td>
-                    <td class="px-6 py-4 text-right text-gray-400">600 pts</td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
