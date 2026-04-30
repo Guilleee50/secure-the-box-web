@@ -30,6 +30,7 @@
     </div>
 </div>
 {% endif %}
+
 <div class="max-w-6xl mx-auto mt-10 p-6">
     
     <div class="mb-8">
@@ -38,44 +39,44 @@
     </div>
 
     <div class="bg-gray-800 p-6 rounded-lg border border-cyan-500/30 shadow-lg mt-6">
-    <h3 class="text-xl font-bold text-cyan-400 mb-4 flex items-center">
-        <i class="fas fa-key mr-2"></i> Tu API Key de Agente
-    </h3>
-    
-    <p class="text-gray-400 text-sm mb-4">
-        Utiliza esta clave en tus scripts de validación local para sincronizar tus progresos con la plataforma.
-    </p>
-
-    <div class="flex items-center space-x-2">
-        <input type="text" 
-               id="apiKeyInput" 
-               value="{{ request.user.profile.api_key }}" 
-               readonly 
-               class="bg-gray-900 text-cyan-300 border border-gray-700 rounded-md px-4 py-2 w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-cyan-500">
+        <h3 class="text-xl font-bold text-cyan-400 mb-4 flex items-center">
+            <i class="fas fa-key mr-2"></i> Tu API Key de Agente
+        </h3>
         
-        <button onclick="copyApiKey()" 
-                class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-md transition-colors flex items-center">
-            <i class="fas fa-copy"></i>
-        </button>
+        <p class="text-gray-400 text-sm mb-4">
+            Utiliza esta clave en tus scripts de validación local para sincronizar tus progresos con la plataforma.
+        </p>
+
+        <div class="flex items-center space-x-2">
+            <input type="text" 
+                   id="apiKeyInput" 
+                   value="{{ request.user.profile.api_key }}" 
+                   readonly 
+                   class="bg-gray-900 text-cyan-300 border border-gray-700 rounded-md px-4 py-2 w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-cyan-500">
+            
+            <button onclick="copyApiKey()" 
+                    class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-md transition-colors flex items-center">
+                <i class="fas fa-copy"></i>
+            </button>
+        </div>
+        <span id="copyMessage" class="text-xs text-green-500 mt-2 hidden italic">¡Copiado al portapapeles!</span>
     </div>
-    <span id="copyMessage" class="text-xs text-green-500 mt-2 hidden italic">¡Copiado al portapapeles!</span>
-</div>
 
-<script>
-function copyApiKey() {
-    var copyText = document.getElementById("apiKeyInput");
-    copyText.select();
-    copyText.setSelectionRange(0, 99999); // Para móviles
-    navigator.clipboard.writeText(copyText.value);
-    
-    // Mostrar mensaje de éxito
-    const msg = document.getElementById("copyMessage");
-    msg.classList.remove("hidden");
-    setTimeout(() => { msg.classList.add("hidden"); }, 2000);
-}
-</script>
+    <script>
+    function copyApiKey() {
+        var copyText = document.getElementById("apiKeyInput");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // Para móviles
+        navigator.clipboard.writeText(copyText.value);
+        
+        // Mostrar mensaje de éxito
+        const msg = document.getElementById("copyMessage");
+        msg.classList.remove("hidden");
+        setTimeout(() => { msg.classList.add("hidden"); }, 2000);
+    }
+    </script>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
         
         <div class="md:col-span-1 bg-[#1e1e1e] border border-gray-700 rounded-lg p-6 shadow-lg h-fit">
             <h2 class="text-xl font-bold text-[#10b981] border-b border-gray-700 pb-2 mb-4">Mis Datos</h2>
@@ -108,23 +109,23 @@ function copyApiKey() {
             <div class="flex justify-between items-center border-b border-gray-700 pb-2 mb-4">
                 <h2 class="text-xl font-bold text-[#10b981]">Máquinas Completadas</h2>
                 <span class="bg-black text-[#10b981] px-3 py-1 rounded font-mono border border-[#10b981]">
-                    Puntos: {{ puntos_totales }}
+                    Puntos: {{ request.user.profile.puntos_totales }}
                 </span>
             </div>
 
             <div class="space-y-4">
-                {% for maquina in maquinas %}
+                {% for maquina in request.user.profile.maquinas_completadas.all %}
                 <div class="bg-black p-4 rounded border border-gray-800 flex justify-between items-center hover:border-gray-600 transition-colors">
                     <div>
                         <h3 class="text-white font-bold text-lg flex items-center gap-2">
                             <span class="text-[#10b981]">_</span> {{ maquina.nombre }}
                         </h3>
-                        <p class="text-gray-500 text-sm mt-1">Completada el: {{ maquina.fecha }}</p>
+                        <p class="text-gray-500 text-sm mt-1">Máquina comprometida y asegurada</p>
                     </div>
                     <div class="text-right">
                         <span class="block text-white font-mono text-xl">{{ maquina.puntos }} pts</span>
                         <span class="text-xs {% if maquina.dificultad == 'Fácil' %}text-green-500{% elif maquina.dificultad == 'Media' %}text-yellow-500{% else %}text-red-500{% endif %}">
-                            {{ maquina.dificultad }}
+                            {{ maquina.dificultad|default:"" }}
                         </span>
                     </div>
                 </div>
