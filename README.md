@@ -7,6 +7,18 @@ pip install -r requirements.txt
 python manage.py migrate  
 python manage.py runserver
 
+## Crear base de datos
+sudo mariadb -u root -p 
+CREATE DATABASE securethebox_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  
+CREATE USER 'django_user'@'localhost' IDENTIFIED BY 'secure-iker-the-guille-box';  
+GRANT ALL PRIVILEGES ON securethebox_db.* TO 'django_user'@'localhost';  
+FLUSH PRIVILEGES;  
+EXIT;  
+python manage.py makemigrations  
+python manage.py migrate
+
+---
+
 ![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)
 ![Django](https://img.shields.io/badge/Django-5.0-green?logo=django)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?logo=tailwind-css)
@@ -32,7 +44,7 @@ python manage.py runserver
 * **Frontend:** HTML5, TailwindCSS
 * **Servidor de Producción:** Nginx (Proxy inverso), Gunicorn (WSGI)
 * **Infraestructura:** AWS EC2, Docker & Docker Compose
-* **Base de Datos:** SQLite (Desarrollo) / PostgreSQL (Producción)
+* **Base de Datos:** SQLite (Desarrollo) / MariaDB (Producción)
 
 ---
 
