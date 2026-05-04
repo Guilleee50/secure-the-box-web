@@ -14,3 +14,4 @@ class SOCProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'puntos_totales', 'normativa_aceptada', 'api_key')
     search_fields = ('user__username', 'api_key')
     list_filter = ('normativa_aceptada',)
+    readonly_fields = ('puntos_totales',)    
