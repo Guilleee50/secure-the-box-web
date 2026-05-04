@@ -97,7 +97,6 @@ def validar_maquina(request):
 
         # 5. ¡Éxito! Añadir la máquina a su lista y sumar los puntos
         perfil.maquinas_completadas.add(maquina)
-        perfil.puntos_totales += maquina.puntos
         perfil.save()
 
         # Responder al script de la máquina con éxito
