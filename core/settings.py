@@ -43,7 +43,12 @@ INSTALLED_APPS = [
     'corsheaders',
     'api',
     'django_extensions',
+    'drf_spectacular',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from .forms import PerfilForm
 from rest_framework.decorators import api_view
+from drf_spectacular.utils import extend_schema, OpenApiExample
 from rest_framework.response import Response
 from rest_framework import status
 from api.models import SOCProfile, Maquina
@@ -23,6 +24,16 @@ def register_view(request):
         form = UserCreationForm()
     
     return render(request, 'register.html', {'form': form})
+
+def home_view(request):
+    # Obtenemos los 5 perfiles con más puntos (orden descendente: -puntos_totales)
+    # select_related('user') es un truco de optimización para que la DB vaya más rápido
+    top_hackers = SOCProfile.objects.select_related('user').order_by('-puntos_totales')[:5]
+    
+    context = {
+        'top_hackers': top_hackers
+    }
+    return render(request, 'index.html', context) 
 
 def docs_view(request):
     return render(request, 'docs.html')
@@ -66,69 +77,75 @@ def panel_view(request):
     }
     return render(request, 'panel.html', context)
 
-@csrf_exempt  # Desactiva la protección CSRF porque la petición viene de un script externo (la máquina), no de un navegador
-@require_POST # Solo aceptamos peticiones POST
+@extend_schema(
+    summary="Validar resolución de máquina",
+    description="Recibe la API Key del usuario y el nombre de la máquina para sumar puntos.",
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'api_key': {'type': 'string', 'example': 'tu_api_key_aqui'},
+                'maquina': {'type': 'string', 'example': 'Docker_Hardening_01'},
+            },
+            'required': ['api_key', 'maquina']
+        }
+    },
+    responses={200: dict, 400: dict, 401: dict, 404: dict}
+)
+@api_view(['POST']) # Sustituye a @csrf_exempt y @require_POST
 def validar_maquina(request):
     try:
-        # 1. Leer los datos enviados por el script de la máquina
-        data = json.loads(request.body)
-        api_key = data.get('api_key')
-        maquina_nombre = data.get('maquina')
+        # 1. Leer los datos enviados por el script de la máquina usando DRF
+        api_key = request.data.get('api_key')
+        maquina_nombre = request.data.get('maquina')
 
         # Validar que nos envían todo lo necesario
         if not api_key or not maquina_nombre:
-            return JsonResponse({'status': 'error', 'message': 'Faltan parámetros: api_key o maquina'}, status=400)
+            return Response({'status': 'error', 'message': 'Faltan parámetros: api_key o maquina'}, status=status.HTTP_400_BAD_REQUEST)
 
         # 2. Buscar al agente por su API Key
         try:
             perfil = SOCProfile.objects.get(api_key=api_key)
         except SOCProfile.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'API Key inválida o Agente no encontrado'}, status=401)
+            return Response({'status': 'error', 'message': 'API Key inválida o Agente no encontrado'}, status=status.HTTP_401_UNAUTHORIZED)
 
         # 3. Buscar la máquina en la base de datos
         try:
             maquina = Maquina.objects.get(nombre=maquina_nombre)
         except Maquina.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Máquina no reconocida por el sistema'}, status=404)
+            return Response({'status': 'error', 'message': 'Máquina no reconocida por el sistema'}, status=status.HTTP_404_NOT_FOUND)
 
         # 4. Comprobar si el usuario ya ha completado esta máquina antes
         if perfil.maquinas_completadas.filter(id=maquina.id).exists():
-            return JsonResponse({'status': 'error', 'message': 'Máquina ya completada anteriormente'}, status=400)
+            return Response({'status': 'error', 'message': 'Máquina ya completada anteriormente'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 5. ¡Éxito! Añadir la máquina a su lista y sumar los puntos
+        # 5. ¡Éxito! Añadir la máquina a su lista
+        # (La señal en models.py sumará los puntos automáticamente)
         perfil.maquinas_completadas.add(maquina)
-        perfil.save()
+        perfil.refresh_from_db() # Refrescamos para obtener el nuevo total de puntos
 
         # Responder al script de la máquina con éxito
-        return JsonResponse({
+        return Response({
             'status': 'success',
             'message': '¡Reto superado! Puntos añadidos a tu perfil.',
             'puntos_ganados': maquina.puntos,
             'puntos_totales': perfil.puntos_totales
-        }, status=200)
+        }, status=status.HTTP_200_OK)
 
-    except json.JSONDecodeError:
-        return JsonResponse({'status': 'error', 'message': 'Formato JSON inválido'}, status=400)
     except Exception as e:
-        return JsonResponse({'status': 'error', 'message': f'Error interno del servidor: {str(e)}'}, status=500)
-    
-def home_view(request):
-    # Obtenemos los 5 perfiles con más puntos (orden descendente: -puntos_totales)
-    # select_related('user') es un truco de optimización para que la DB vaya más rápido
-    top_hackers = SOCProfile.objects.select_related('user').order_by('-puntos_totales')[:5]
-    
-    context = {
-        'top_hackers': top_hackers
-    }
-    return render(request, 'index.html', context) 
+        return Response({'status': 'error', 'message': f'Error interno del servidor: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@csrf_exempt
-@require_POST
+
+@extend_schema(
+    summary="Obtener datos del agente",
+    request={'application/json': {'type': 'object', 'properties': {'api_key': {'type': 'string'}}}},
+    responses={200: dict}
+)
+@api_view(['POST'])
 def get_user_data(request):
     try:
         # 1. Leer los datos enviados por la app cliente
-        data = json.loads(request.body)
-        api_key = data.get('api_key')
+        api_key = request.data.get('api_key')
 
         # Validar que nos envían la key
         if not api_key:
