@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from api import views
 from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
-from api.views import register_view, docs_view, panel_view, validar_maquina_api, normativa_view, aceptar_normativa, home_view
+from api.views import register_view, docs_view, panel_view, validar_maquina, normativa_view, aceptar_normativa, home_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,5 +33,5 @@ urlpatterns = [
     path('normativa/', normativa_view, name='normativa'),
     path('normativa/aceptar/', aceptar_normativa, name='aceptar_normativa'),
     # Rutas de la API
-    path('api/v1/validar/', validar_maquina_api, name='api_validar'),
+    path('api/v1/validar/', views.validar_maquina, name='api_validar_maquina'),
 ]
