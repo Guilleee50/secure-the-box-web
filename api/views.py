@@ -121,3 +121,42 @@ def home_view(request):
         'top_hackers': top_hackers
     }
     return render(request, 'index.html', context) 
+
+@csrf_exempt
+@require_POST
+def get_user_data(request):
+    try:
+        # 1. Leer los datos enviados por la app cliente
+        data = json.loads(request.body)
+        api_key = data.get('api_key')
+
+        # Validar que nos envían la key
+        if not api_key:
+            return JsonResponse({'status': 'error', 'message': 'Falta el parámetro: api_key'}, status=400)
+
+        # 2. Buscar al agente por su API Key
+        try:
+            perfil = SOCProfile.objects.get(api_key=api_key)
+        except SOCProfile.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'API Key inválida o Agente no encontrado'}, status=401)
+
+        # 3. Preparar los datos a devolver
+        # values_list('nombre', flat=True) saca solo los nombres de las máquinas en una lista limpia
+        maquinas_hechas = list(perfil.maquinas_completadas.values_list('nombre', flat=True))
+
+        # 4. Devolver la información estructurada en JSON
+        return JsonResponse({
+            'status': 'success',
+            'data': {
+                'username': perfil.user.username,
+                'puntos_totales': perfil.puntos_totales,
+                'maquinas_completadas': maquinas_hechas,
+                # Si tienes el campo de normativa en el modelo, lo puedes pasar también:
+                # 'normativa_aceptada': perfil.normativa_aceptada 
+            }
+        }, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Formato JSON inválido'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': f'Error interno del servidor: {str(e)}'}, status=500)
