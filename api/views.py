@@ -2,11 +2,15 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from .forms import PerfilForm
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from api.models import SOCProfile
+from api.models import SOCProfile, Maquina
 
 def register_view(request):
     if request.method == 'POST':
@@ -62,33 +66,52 @@ def panel_view(request):
     }
     return render(request, 'panel.html', context)
 
-@api_view(['POST'])
-def validar_maquina_api(request):
-    api_key = request.data.get('api_key')
-    nombre_maquina = request.data.get('maquina')
-
+@csrf_exempt  # Desactiva la protección CSRF porque la petición viene de un script externo (la máquina), no de un navegador
+@require_POST # Solo aceptamos peticiones POST
+def validar_maquina(request):
     try:
-        # 1. Buscar al usuario por su API Key
-        perfil = SOCProfile.objects.get(api_key=api_key)
-        
-        # 2. Buscar la máquina en la base de datos
-        maquina = Maquina.objects.get(nombre=nombre_maquina)
+        # 1. Leer los datos enviados por el script de la máquina
+        data = json.loads(request.body)
+        api_key = data.get('api_key')
+        maquina_nombre = data.get('maquina')
 
-        # 3. Evitar que sume puntos dos veces por la misma máquina
-        if maquina in perfil.maquinas_completadas.all():
-            return Response({"error": "Máquina ya completada anteriormente"}, status=400)
+        # Validar que nos envían todo lo necesario
+        if not api_key or not maquina_nombre:
+            return JsonResponse({'status': 'error', 'message': 'Faltan parámetros: api_key o maquina'}, status=400)
 
-        # 4. Sumar puntos y registrar
+        # 2. Buscar al agente por su API Key
+        try:
+            perfil = SOCProfile.objects.get(api_key=api_key)
+        except SOCProfile.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'API Key inválida o Agente no encontrado'}, status=401)
+
+        # 3. Buscar la máquina en la base de datos
+        try:
+            maquina = Maquina.objects.get(nombre=maquina_nombre)
+        except Maquina.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Máquina no reconocida por el sistema'}, status=404)
+
+        # 4. Comprobar si el usuario ya ha completado esta máquina antes
+        if perfil.maquinas_completadas.filter(id=maquina.id).exists():
+            return JsonResponse({'status': 'error', 'message': 'Máquina ya completada anteriormente'}, status=400)
+
+        # 5. ¡Éxito! Añadir la máquina a su lista y sumar los puntos
         perfil.maquinas_completadas.add(maquina)
         perfil.puntos_totales += maquina.puntos
         perfil.save()
 
-        return Response({"status": "Puntos sumados", "total": perfil.puntos_totales})
+        # Responder al script de la máquina con éxito
+        return JsonResponse({
+            'status': 'success',
+            'message': '¡Reto superado! Puntos añadidos a tu perfil.',
+            'puntos_ganados': maquina.puntos,
+            'puntos_totales': perfil.puntos_totales
+        }, status=200)
 
-    except SOCProfile.DoesNotExist:
-        return Response({"error": "API Key inválida"}, status=403)
-    except Maquina.DoesNotExist:
-        return Response({"error": "Máquina no encontrada"}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Formato JSON inválido'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': f'Error interno del servidor: {str(e)}'}, status=500)
     
 def home_view(request):
     # Obtenemos los 5 perfiles con más puntos (orden descendente: -puntos_totales)
