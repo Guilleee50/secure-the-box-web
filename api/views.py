@@ -80,7 +80,6 @@ def validar_maquina_api(request):
 
         # 4. Sumar puntos y registrar
         perfil.maquinas_completadas.add(maquina)
-        perfil.puntos_totales += maquina.puntos
         perfil.save()
 
         return Response({"status": "Puntos sumados", "total": perfil.puntos_totales})
