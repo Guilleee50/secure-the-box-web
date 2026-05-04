@@ -19,6 +19,7 @@ from django.urls import path
 from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
 from api.views import register_view, docs_view, panel_view, validar_maquina_api, normativa_view, aceptar_normativa, home_view
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,4 +34,6 @@ urlpatterns = [
     path('normativa/aceptar/', aceptar_normativa, name='aceptar_normativa'),
     # Rutas de la API
     path('api/v1/validar/', validar_maquina_api, name='api_validar'),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ]

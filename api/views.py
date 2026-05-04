@@ -4,6 +4,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from .forms import PerfilForm
 from rest_framework.decorators import api_view
+from drf_spectacular.utils import extend_schema, OpenApiExample
 from rest_framework.response import Response
 from rest_framework import status
 from api.models import SOCProfile
@@ -62,6 +63,21 @@ def panel_view(request):
     }
     return render(request, 'panel.html', context)
 
+@extend_schema(
+    summary="Validar resolución de máquina",
+    description="Recibe la API Key del usuario y el nombre de la máquina para sumar puntos.",
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'api_key': {'type': 'string', 'example': 'tu_api_key_aqui'},
+                'maquina': {'type': 'string', 'example': 'Docker_Hardening_01'},
+            },
+            'required': ['api_key', 'maquina']
+        }
+    },
+    responses={200: dict, 400: dict, 401: dict}
+)
 @api_view(['POST'])
 def validar_maquina_api(request):
     api_key = request.data.get('api_key')
