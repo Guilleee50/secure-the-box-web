@@ -27,7 +27,7 @@
                 </form>
                 {% else %}
                 <a href="{% url 'docs' %}" class="text-gray-300 hover:text-[#10b981] px-3 font-bold">Docs</a>
-                <a href="{% url 'login' %}" class="text-gray-300 hover:text-white px-3">Login</a>
+                <a href="{% url 'two_factor:login' %}" class="text-gray-300 hover:text-white px-3">Login</a>
                 <a href="{% url 'register' %}"
                     class="bg-gray-800 text-gray-300 border border-gray-600 hover:text-white px-4 py-2 rounded ml-2">Registro</a>
                 {% endif %}
