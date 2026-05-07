@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django_otp.plugins.otp_static',
     'django_otp.plugins.otp_totp',
     'two_factor',
+    'axes',
 ]
 
 REST_FRAMEWORK = {
@@ -64,6 +65,12 @@ MIDDLEWARE = [
     'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',
+]
+
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesBackend', # Permite que Axes vigile los logins
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -85,16 +92,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-#}
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -148,3 +145,8 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 LOGIN_URL = 'two_factor:login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
+
+# Axes configuration
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = 1  # Tiempo en horas para desbloquear la cuenta después de alcanzar el límite de intentos fallidos
+AXES_LOCKOUT_URL = '/lockout/'  # Ruta a la página de bloqueo personalizada
