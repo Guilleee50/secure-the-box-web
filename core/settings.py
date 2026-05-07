@@ -150,3 +150,12 @@ LOGOUT_REDIRECT_URL = 'home'
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = 1  # Tiempo en horas para desbloquear la cuenta después de alcanzar el límite de intentos fallidos
 AXES_LOCKOUT_URL = '/lockout/'  # Ruta a la página de bloqueo personalizada
+
+# Security settings
+# Securety Hardening
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'  # Evita que tu web se cargue en un iframe (anti-clickjacking)
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
