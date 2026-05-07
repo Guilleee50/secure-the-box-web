@@ -24,7 +24,7 @@ from api.views import register_view, docs_view, panel_view, validar_maquina, nor
 from two_factor.urls import urlpatterns as tf_urls
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('panel-administracion/', admin.site.urls),
     # path('', TemplateView.as_view(template_name="index.html"), name='home'),
     path('', home_view, name='home'),
     # path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
