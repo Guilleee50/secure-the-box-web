@@ -42,4 +42,5 @@ urlpatterns = [
     path('api/v1/validar/', views.validar_maquina, name='api_validar_maquina'),
     path('api/v1/get_user_data', views.get_user_data, name='api_get_user_data'),
     path('lockout/', TemplateView.as_view(template_name='lockout.html'), name='lockout'),
+    path('captcha/', include('captcha.urls')),
 ]

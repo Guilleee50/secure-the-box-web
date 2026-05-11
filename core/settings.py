@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django_otp.plugins.otp_totp',
     'two_factor',
     'axes',
+    'captcha',
 ]
 
 REST_FRAMEWORK = {
