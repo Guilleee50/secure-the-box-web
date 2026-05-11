@@ -6,7 +6,7 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from .forms import PerfilForm
+from .forms import PerfilForm, RegistroConCaptchaForm
 from rest_framework.decorators import api_view
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from rest_framework.response import Response
@@ -15,13 +15,20 @@ from api.models import SOCProfile, Maquina
 
 def register_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        # 1. Usamos el formulario que incluye el campo CAPTCHA
+        form = RegistroConCaptchaForm(request.POST) 
+        
+        # 2. Django comprueba automáticamente el CAPTCHA aquí
         if form.is_valid():
             user = form.save()
-            login(request, user) # Loguea al usuario automáticamente tras registrarse
+            
+            # 3. Solución al conflicto con Axes: especificamos el backend de autenticación
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend') 
+            
             return redirect('home')
     else:
-        form = UserCreationForm()
+        # Formulario vacío para peticiones GET
+        form = RegistroConCaptchaForm()
     
     return render(request, 'register.html', {'form': form})
 
@@ -177,3 +184,4 @@ def get_user_data(request):
         return JsonResponse({'status': 'error', 'message': 'Formato JSON inválido'}, status=400)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': f'Error interno del servidor: {str(e)}'}, status=500)
+    
