@@ -1,0 +1,40 @@
+{% extends "two_factor/_base.html" %}
+
+{% block two_factor_content %}
+<div class="bg-[#1e1e1e] p-8 rounded-lg border border-gray-700 shadow-2xl w-full max-w-md">
+    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+        <span class="text-[#10b981]">_</span> Iniciar Sesión
+    </h2>
+
+    <p class="text-gray-400 mb-6 text-sm">Introduzca sus credenciales de agente.</p>
+
+    <form action="" method="post" class="space-y-4">
+        {% csrf_token %}
+        
+        {# Renderizado manual para controlar el estilo #}
+        {% for field in wizard.form %}
+            <div>
+                <label class="block text-gray-400 text-sm font-bold mb-2">{{ field.label }}</label>
+                {{ field.errors }}
+                <input type="{{ field.field.widget.input_type }}" 
+                       name="{{ field.html_name }}"
+                       class="w-full bg-black text-white rounded border border-gray-700 p-3 focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] outline-none transition"
+                       placeholder="{{ field.label }}">
+            </div>
+        {% endfor %}
+
+        {# Importante para el sistema de pasos (Wizard) de 2FA #}
+        {{ wizard.management_form }}
+
+        <div class="flex items-center justify-between mt-6">
+            <button type="submit" class="w-full border-2 border-[#10b981] text-[#10b981] font-bold py-3 rounded hover:bg-[#10b981] hover:text-black transition">
+                Siguiente
+            </button>
+        </div>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-gray-400">
+        ¿Eres nuevo? <a href="{% url 'register' %}" class="text-[#10b981] hover:underline">Crear cuenta</a>
+    </p>
+</div>
+{% endblock %}
