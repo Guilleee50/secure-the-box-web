@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="max-w-xl mx-auto mt-10 p-6">
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white">🔑 Códigos de Respaldo</h1>
+        <p class="text-gray-400 font-mono mt-1">Guárdalos en un lugar seguro</p>
+    </div>
+
+    <div class="bg-[#1e1e1e] border border-gray-700 rounded-lg p-6 shadow-lg">
+
+        <p class="text-gray-400 text-sm mb-6">
+            Los códigos de respaldo se pueden usar cuando tu dispositivo principal no está disponible.
+            Solo serán válidos los códigos que se muestran a continuación. Si los usas todos, genera un nuevo conjunto.
+        </p>
+
+        {% if device.token_set.count %}
+            <div class="bg-black border border-gray-700 rounded-lg p-4 mb-6">
+                <div class="grid grid-cols-2 gap-2">
+                    {% for token in device.token_set.all %}
+                        <span class="font-mono text-cyan-300 text-sm tracking-widest">{{ token.token }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <p class="text-gray-500 text-xs mb-6">💡 Imprime estos códigos y guárdalos en un lugar seguro.</p>
+        {% else %}
+            <div class="mb-6 p-4 bg-yellow-900/30 border border-yellow-500/40 rounded-lg">
+                <p class="text-yellow-400 text-sm">Todavía no tienes ningún código de respaldo.</p>
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="flex items-center justify-between mt-4">
+                <button type="submit"
+                        class="border border-[#10b981] text-[#10b981] hover:bg-[#10b981] hover:text-black font-bold py-2 px-4 rounded transition-colors">
+                    Generar Códigos de Respaldo
+                </button>
+                <a href="{% url 'two_factor:profile' %}"
+                   class="text-gray-500 hover:text-gray-300 text-sm transition-colors">
+                    Volver a Seguridad de la Cuenta
+                </a>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock %}
