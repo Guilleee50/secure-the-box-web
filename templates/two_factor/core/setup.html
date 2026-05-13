@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block extra_media %}
+  {{ form.media }}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto mt-10 p-6">
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white">🔐 Activar Autenticación de Dos Factores</h1>
+        <p class="text-gray-400 font-mono mt-1">Sigue los pasos del asistente</p>
+    </div>
+
+    <div class="bg-[#1e1e1e] border border-gray-700 rounded-lg p-6 shadow-lg">
+
+        {% if wizard.steps.current == 'welcome' %}
+            <p class="text-gray-300 mb-6">Estás a punto de llevar la seguridad de tu cuenta al siguiente nivel. Sigue los pasos de este asistente para habilitar la autenticación de dos factores.</p>
+
+        {% elif wizard.steps.current == 'method' %}
+            <p class="text-gray-300 mb-6">Selecciona el método de autenticación que quieres usar.</p>
+
+        {% elif wizard.steps.current == 'generator' %}
+            <p class="text-gray-300 mb-4">Escanea el código QR con tu smartphone usando Google Authenticator o Authy.</p>
+            <div class="flex justify-center my-6 p-4 bg-white rounded-lg w-fit mx-auto">
+                <img src="{{ QR_URL }}" alt="QR Code"/>
+            </div>
+            <p class="text-gray-400 text-sm mb-2">O configura el TOTP manualmente con esta clave secreta:</p>
+            <div class="bg-black border border-gray-700 rounded px-4 py-2 font-mono text-cyan-300 text-sm mb-4 break-all">
+                <a href="{{ otpauth_url }}">{{ secret_key }}</a>
+            </div>
+            <p class="text-gray-300 text-sm">Después, introduce el token generado por la app.</p>
+
+        {% elif wizard.steps.current == 'validation' %}
+            {% if not challenge_succeeded %}
+            <div class="mb-4 p-4 bg-yellow-900/30 border border-yellow-500/40 rounded-lg">
+                <p class="text-yellow-400 text-sm">⚠️ Ha habido un problema con el método seleccionado. Vuelve atrás y verifica que los datos son correctos.</p>
+            </div>
+            {% endif %}
+        {% endif %}
+
+        <form action="" method="post" class="mt-4">
+            {% csrf_token %}
+            {{ wizard.management_form }}
+
+            <div class="space-y-4 mb-6">
+                {% for field in wizard.form %}
+                    <div>
+                        {% if field.label %}
+                            <label class="block text-gray-400 text-sm mb-1">{{ field.label }}</label>
+                        {% endif %}
+                        <div class="[&>input]:bg-gray-900 [&>input]:text-white [&>input]:border [&>input]:border-gray-700 [&>input]:rounded [&>input]:px-4 [&>input]:py-2 [&>input]:w-full [&>select]:bg-gray-900 [&>select]:text-white [&>select]:border [&>select]:border-gray-700 [&>select]:rounded [&>select]:px-4 [&>select]:py-2 [&>select]:w-full">
+                            {{ field }}
+                        </div>
+                        {% if field.errors %}
+                            <p class="text-red-400 text-xs mt-1">{{ field.errors|join:", " }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <input type="submit" value="" hidden />
+
+            <div class="flex items-center justify-between mt-6">
+                <div class="flex gap-3">
+                    {% if wizard.steps.prev %}
+                        <button name="wizard_goto_step" type="submit"
+                                value="{{ wizard.steps.prev }}"
+                                class="border border-gray-600 text-gray-300 hover:border-gray-400 hover:text-white font-bold py-2 px-4 rounded transition-colors">
+                            Volver
+                        </button>
+                    {% else %}
+                        <button disabled type="button"
+                                class="border border-gray-700 text-gray-600 font-bold py-2 px-4 rounded cursor-not-allowed">
+                            Volver
+                        </button>
+                    {% endif %}
+                    <button type="submit"
+                            class="bg-transparent border border-[#10b981] text-[#10b981] hover:bg-[#10b981] hover:text-black font-bold py-2 px-4 rounded transition-colors">
+                        Siguiente
+                    </button>
+                </div>
+                {% if cancel_url %}
+                    <a href="{{ cancel_url }}"
+                       class="text-gray-500 hover:text-gray-300 text-sm transition-colors">
+                        Cancelar
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock %}
