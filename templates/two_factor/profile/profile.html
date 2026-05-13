@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load two_factor_tags %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10 p-6">
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white">🔒 Seguridad de la Cuenta</h1>
+        <p class="text-gray-400 font-mono mt-1">Gestiona la autenticación de dos factores</p>
+    </div>
+
+    <div class="bg-[#1e1e1e] border border-gray-700 rounded-lg p-6 shadow-lg">
+
+        {% if default_device %}
+            <div class="mb-6 p-4 bg-green-900/30 border border-green-500/40 rounded-lg">
+                <p class="text-green-400 font-mono text-sm">
+                    ✅ 2FA activado — Método principal: {{ default_device|as_action }}
+                </p>
+            </div>
+
+            <h2 class="text-lg font-bold text-[#10b981] mb-3">Tokens de Backup</h2>
+            <p class="text-gray-400 text-sm mb-4">
+                Si no tienes acceso a tu dispositivo, puedes entrar con tokens de backup.
+                {% blocktrans trimmed count counter=backup_tokens %}
+                    Te queda solo <strong class="text-white">1</strong> token de backup.
+                {% plural %}
+                    Te quedan <strong class="text-white">{{ counter }}</strong> tokens de backup.
+                {% endblocktrans %}
+            </p>
+            <a href="{% url 'two_factor:backup_tokens' %}"
+               class="inline-block border border-[#10b981] text-[#10b981] hover:bg-[#10b981] hover:text-black font-bold py-2 px-4 rounded transition-colors mb-6">
+                Ver Códigos de Backup
+            </a>
+
+            <div class="border-t border-gray-700 pt-6 mt-2">
+                <h3 class="text-lg font-bold text-red-400 mb-2">Desactivar 2FA</h3>
+                <p class="text-gray-400 text-sm mb-4">
+                    No recomendamos desactivar la autenticación de dos factores. Tu cuenta quedará menos protegida.
+                </p>
+                <a href="{% url 'two_factor:disable' %}"
+                   class="inline-block border border-red-500 text-red-400 hover:bg-red-600 hover:text-white font-bold py-2 px-4 rounded transition-colors">
+                    Desactivar Autenticación de Dos Factores
+                </a>
+            </div>
+
+        {% else %}
+            <div class="mb-6 p-4 bg-yellow-900/30 border border-yellow-500/40 rounded-lg">
+                <p class="text-yellow-400 font-mono text-sm">
+                    ⚠️ No tienes la autenticación de dos factores activada.
+                </p>
+            </div>
+            <p class="text-gray-400 text-sm mb-6">
+                Activa el doble factor para añadir una capa extra de seguridad a tu cuenta usando Google Authenticator o Authy.
+            </p>
+            <a href="{% url 'two_factor:setup' %}"
+               class="inline-block bg-transparent border border-[#10b981] text-[#10b981] hover:bg-[#10b981] hover:text-black font-bold py-2 px-4 rounded transition-colors">
+                Activar Autenticación de Dos Factores
+            </a>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
