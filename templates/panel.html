@@ -137,10 +137,15 @@
             </div>
         </div>
     </div>
-    <div class="seguridad-caja" style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
-        <h3>🔒 Seguridad de la cuenta</h3>
-        <p>Añade una capa extra de protección a tu perfil de SecureTheBox activando la Autenticación de Doble Factor (Google Authenticator / Authy).</p>    
-        <a href="{% url 'two_factor:profile' %}" class="btn btn-primary" style="background-color: #007bff; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; margin-top: 10px; display: inline-block;">
+    <div class="bg-[#1e1e1e] border border-gray-700 rounded-lg p-6 shadow-lg mt-8">
+        <h3 class="text-xl font-bold text-[#10b981] mb-2 flex items-center gap-2">
+            🔒 Seguridad de la cuenta
+        </h3>
+        <p class="text-gray-400 text-sm mb-4">
+            Añade una capa extra de protección a tu perfil de SecureTheBox activando la Autenticación de Doble Factor (Google Authenticator / Authy).
+        </p>
+        <a href="{% url 'two_factor:profile' %}" 
+        class="inline-block bg-transparent border border-[#10b981] text-[#10b981] hover:bg-[#10b981] hover:text-black font-bold py-2 px-4 rounded transition-colors">
             Configurar / Gestionar MFA
         </a>
     </div>
