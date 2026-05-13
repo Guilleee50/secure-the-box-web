@@ -30,6 +30,7 @@ pillow==12.2.0
 pydot==4.0.1
 pygraphviz==1.14
 pyparsing==3.3.2
+python-decouple==3.8
 PyYAML==6.0.3
 qrcode==8.2
 referencing==0.37.0
