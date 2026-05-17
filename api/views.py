@@ -3,6 +3,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 import json
+import hmac
+import hashlib
+from django.utils import timezone
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -11,7 +15,7 @@ from rest_framework.decorators import api_view
 from drf_spectacular.utils import extend_schema, OpenApiExample
 from rest_framework.response import Response
 from rest_framework import status
-from api.models import SOCProfile, Maquina
+from api.models import SOCProfile, Maquina, Flag
 
 def register_view(request):
     if request.method == 'POST':
@@ -185,3 +189,210 @@ def get_user_data(request):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': f'Error interno del servidor: {str(e)}'}, status=500)
     
+
+# ===========================================================
+# --- SISTEMA DE FLAGS ---
+# ===========================================================
+
+def _verificar_hmac_flag(token: str) -> bool:
+    """
+    Comprueba que la firma HMAC del token es válida.
+    Formato del token: STB-<maquina>-<timestamp_unix>-<hmac_hex>
+    """
+    try:
+        partes = token.split('-', 3)          # máximo 4 partes
+        if len(partes) != 4 or partes[0] != 'STB':
+            return False
+        _, maquina_slug, ts, firma_recibida = partes
+        mensaje = f"{maquina_slug}-{ts}".encode()
+        firma_esperada = hmac.new(
+            settings.FLAG_SECRET.encode(),
+            mensaje,
+            hashlib.sha256
+        ).hexdigest()
+        return hmac.compare_digest(firma_esperada, firma_recibida)
+    except Exception:
+        return False
+
+
+@extend_schema(
+    summary="Registrar FLAG generada por el script de validación",
+    description=(
+        "El script de check llama a este endpoint para depositar una FLAG válida "
+        "en la base de datos. No suma puntos: solo guarda la FLAG para que el "
+        "usuario la canjee desde la web."
+    ),
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'flag':    {'type': 'string', 'example': 'STB-ssh_inseguro-1716000000-abcdef...'},
+                'maquina': {'type': 'string', 'example': 'ssh_inseguro'},
+            },
+            'required': ['flag', 'maquina']
+        }
+    },
+    responses={201: dict, 400: dict, 404: dict, 409: dict}
+)
+@api_view(['POST'])
+def registrar_flag(request):
+    """
+    Llamado por el script de check tras validar la máquina.
+    Guarda la FLAG en BD para que el usuario la canjee desde la web.
+    No requiere autenticación de usuario (solo HMAC válido).
+    """
+    token       = request.data.get('flag', '').strip()
+    maquina_slug = request.data.get('maquina', '').strip()
+
+    if not token or not maquina_slug:
+        return Response(
+            {'status': 'error', 'message': 'Faltan parámetros: flag o maquina'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 1. Verificar firma HMAC
+    if not _verificar_hmac_flag(token):
+        return Response(
+            {'status': 'error', 'message': 'FLAG inválida: firma incorrecta'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 2. Extraer timestamp del token y calcular caducidad
+    try:
+        ts_unix = int(token.split('-')[2])
+        creada_en = timezone.datetime.fromtimestamp(ts_unix, tz=timezone.utc)
+    except (ValueError, IndexError):
+        return Response(
+            {'status': 'error', 'message': 'FLAG inválida: timestamp malformado'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if (timezone.now() - creada_en).total_seconds() > Flag.FLAG_TTL_MINUTOS * 60:
+        return Response(
+            {'status': 'error', 'message': 'FLAG caducada'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 3. Buscar la máquina
+    try:
+        maquina = Maquina.objects.get(nombre=maquina_slug)
+    except Maquina.DoesNotExist:
+        return Response(
+            {'status': 'error', 'message': 'Máquina no reconocida'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # 4. Evitar duplicados
+    if Flag.objects.filter(token=token).exists():
+        return Response(
+            {'status': 'error', 'message': 'FLAG ya registrada'},
+            status=status.HTTP_409_CONFLICT
+        )
+
+    # 5. Guardar la FLAG
+    Flag.objects.create(token=token, maquina=maquina, creada_en=creada_en)
+
+    return Response(
+        {'status': 'success', 'message': 'FLAG registrada. El usuario ya puede canjearla en la web.'},
+        status=status.HTTP_201_CREATED
+    )
+
+
+@extend_schema(
+    summary="Canjear FLAG por puntos",
+    description="El usuario introduce la FLAG en la web. Si es válida, no ha caducado y no ha sido usada, suma los puntos a su perfil.",
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'flag': {'type': 'string', 'example': 'STB-ssh_inseguro-1716000000-abcdef...'},
+            },
+            'required': ['flag']
+        }
+    },
+    responses={200: dict, 400: dict, 401: dict}
+)
+@api_view(['POST'])
+def canjear_flag(request):
+    """
+    Llamado desde el panel web cuando el usuario introduce su FLAG.
+    Requiere sesión activa (login_required a nivel de vista).
+    """
+    if not request.user.is_authenticated:
+        return Response(
+            {'status': 'error', 'message': 'Debes iniciar sesión para canjear una FLAG'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    token = request.data.get('flag', '').strip()
+    if not token:
+        return Response(
+            {'status': 'error', 'message': 'Falta el parámetro: flag'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 1. Verificar firma HMAC
+    if not _verificar_hmac_flag(token):
+        return Response(
+            {'status': 'error', 'message': 'FLAG inválida'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 2. Verificar caducidad
+    try:
+        ts_unix = int(token.split('-')[2])
+        creada_en = timezone.datetime.fromtimestamp(ts_unix, tz=timezone.utc)
+    except (ValueError, IndexError):
+        return Response(
+            {'status': 'error', 'message': 'FLAG malformada'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if (timezone.now() - creada_en).total_seconds() > Flag.FLAG_TTL_MINUTOS * 60:
+        return Response(
+            {'status': 'error', 'message': f'FLAG caducada (límite: {Flag.FLAG_TTL_MINUTOS} min)'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 3. Buscar la FLAG en BD
+    try:
+        flag_obj = Flag.objects.select_related('maquina').get(token=token)
+    except Flag.DoesNotExist:
+        return Response(
+            {'status': 'error', 'message': 'FLAG no encontrada. ¿La ha generado el script de validación?'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 4. Comprobar que no ha sido ya usada
+    if flag_obj.usada:
+        return Response(
+            {'status': 'error', 'message': 'Esta FLAG ya ha sido canjeada'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 5. Comprobar que el usuario no ha completado ya esta máquina
+    perfil = request.user.profile
+    maquina = flag_obj.maquina
+
+    if perfil.maquinas_completadas.filter(id=maquina.id).exists():
+        return Response(
+            {'status': 'error', 'message': 'Ya tienes esta máquina completada'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # 6. ¡Todo OK! Marcar FLAG como usada y sumar puntos
+    flag_obj.usada    = True
+    flag_obj.usada_por = request.user
+    flag_obj.usada_en  = timezone.now()
+    flag_obj.save()
+
+    perfil.maquinas_completadas.add(maquina)   # La señal en models.py recalcula puntos
+    perfil.refresh_from_db()
+
+    return Response({
+        'status':        'success',
+        'message':       f'¡FLAG válida! Has completado "{maquina.nombre}".',
+        'puntos_ganados': maquina.puntos,
+        'puntos_totales': perfil.puntos_totales,
+    }, status=status.HTTP_200_OK)
+

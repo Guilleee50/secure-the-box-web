@@ -1,4 +1,5 @@
 import uuid
+import hashlib
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, m2m_changed
@@ -26,6 +27,30 @@ class Maquina(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+class Flag(models.Model):
+    """
+    FLAG de un solo uso generada por el script de validación.
+    Vincula una máquina concreta a un token HMAC firmado con caducidad.
+    """
+    token     = models.CharField(max_length=200, unique=True)  # STB-<maquina>-<ts>-<hmac>
+    maquina   = models.ForeignKey(Maquina, on_delete=models.CASCADE)
+    creada_en = models.DateTimeField()                         # Timestamp extraído del propio token
+    usada     = models.BooleanField(default=False)
+    usada_por = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    usada_en  = models.DateTimeField(null=True, blank=True)
+
+    FLAG_TTL_MINUTOS = 30  # La FLAG caduca a los 30 minutos
+
+    def __str__(self):
+        estado = "usada" if self.usada else "disponible"
+        return f"FLAG {self.maquina.nombre} [{estado}]"
+
+    class Meta:
+        verbose_name = "Flag"
+        verbose_name_plural = "Flags"
+
 
 class SOCProfile(models.Model):
     # Relación uno a uno con el usuario de Django
