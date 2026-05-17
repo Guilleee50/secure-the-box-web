@@ -40,9 +40,8 @@ urlpatterns = [
     path('normativa/', normativa_view, name='normativa'),
     path('normativa/aceptar/', aceptar_normativa, name='aceptar_normativa'),
     # Rutas de la API
-    path('api/v1/validar/', validar_maquina, name='api_validar'),
-    path('api/schema/', staff_required(SpectacularAPIView.as_view()), name='schema'),
-    path('api/docs/', staff_required(SpectacularSwaggerView.as_view(url_name='schema')), name='swagger-ui'),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/v1/validar/', views.validar_maquina, name='api_validar_maquina'),
     path('api/v1/get_user_data', views.get_user_data, name='api_get_user_data'),
     # Sistema de FLAGS
