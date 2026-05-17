@@ -36,7 +36,6 @@ urlpatterns = [
     path('normativa/', normativa_view, name='normativa'),
     path('normativa/aceptar/', aceptar_normativa, name='aceptar_normativa'),
     # Rutas de la API
-    path('api/v1/validar/', validar_maquina, name='api_validar'),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/v1/validar/', views.validar_maquina, name='api_validar_maquina'),
