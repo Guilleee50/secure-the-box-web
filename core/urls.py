@@ -19,9 +19,13 @@ from django.urls import path, include
 from api import views
 from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import user_passes_test
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from api.views import register_view, docs_view, panel_view, validar_maquina, normativa_view, aceptar_normativa, get_user_data, home_view, registrar_flag, canjear_flag
 from two_factor.urls import urlpatterns as tf_urls
+
+# Swagger/schema solo accesible para staff (o en local con DEBUG)
+staff_required = user_passes_test(lambda u: u.is_active and u.is_staff, login_url='/accounts/login/')
 
 urlpatterns = [
     path('panel-administracion/', admin.site.urls),
