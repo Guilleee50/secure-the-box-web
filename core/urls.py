@@ -20,7 +20,7 @@ from api import views
 from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-from api.views import register_view, docs_view, panel_view, validar_maquina, normativa_view, aceptar_normativa, get_user_data, home_view
+from api.views import register_view, docs_view, panel_view, validar_maquina, normativa_view, aceptar_normativa, get_user_data, home_view, registrar_flag, canjear_flag
 from two_factor.urls import urlpatterns as tf_urls
 
 urlpatterns = [
@@ -41,6 +41,9 @@ urlpatterns = [
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/v1/validar/', views.validar_maquina, name='api_validar_maquina'),
     path('api/v1/get_user_data', views.get_user_data, name='api_get_user_data'),
+    # Sistema de FLAGS
+    path('api/v1/flags/registrar/', registrar_flag, name='api_registrar_flag'),
+    path('api/v1/flags/canjear/', canjear_flag, name='api_canjear_flag'),
     path('lockout/', TemplateView.as_view(template_name='lockout.html'), name='lockout'),
     path('captcha/', include('captcha.urls')),
 ]
