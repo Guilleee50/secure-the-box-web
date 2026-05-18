@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 import json
 import hmac
 import hashlib
+import datetime
 from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
@@ -261,7 +262,7 @@ def registrar_flag(request):
         # 2. Extraer timestamp del token y calcular caducidad
         try:
             ts_unix = int(token.split('-')[2])
-            creada_en = timezone.datetime.fromtimestamp(ts_unix, tz=timezone.utc)
+            creada_en = datetime.datetime.fromtimestamp(ts_unix, tz=datetime.timezone.utc)
         except (ValueError, IndexError):
             return Response(
                 {'status': 'error', 'message': 'FLAG inválida: timestamp malformado'},
@@ -348,7 +349,7 @@ def canjear_flag(request):
     # 2. Verificar caducidad
     try:
         ts_unix = int(token.split('-')[2])
-        creada_en = timezone.datetime.fromtimestamp(ts_unix, tz=timezone.utc)
+        creada_en = datetime.datetime.fromtimestamp(ts_unix, tz=datetime.timezone.utc)
     except (ValueError, IndexError):
         return Response(
             {'status': 'error', 'message': 'FLAG malformada'},
