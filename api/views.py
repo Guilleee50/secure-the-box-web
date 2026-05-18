@@ -241,67 +241,68 @@ def registrar_flag(request):
     Guarda la FLAG en BD para que el usuario la canjee desde la web.
     No requiere autenticación de usuario (solo HMAC válido).
     """
-    token       = request.data.get('flag', '').strip()
-    maquina_slug = request.data.get('maquina', '').strip()
-
-    if not token or not maquina_slug:
-        return Response(
-            {'status': 'error', 'message': 'Faltan parámetros: flag o maquina'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    # 1. Verificar firma HMAC
-    if not _verificar_hmac_flag(token):
-        return Response(
-            {'status': 'error', 'message': 'FLAG inválida: firma incorrecta'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    # 2. Extraer timestamp del token y calcular caducidad
     try:
-        ts_unix = int(token.split('-')[2])
-        creada_en = timezone.datetime.fromtimestamp(ts_unix, tz=timezone.utc)
-    except (ValueError, IndexError):
-        return Response(
-            {'status': 'error', 'message': 'FLAG inválida: timestamp malformado'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        token        = request.data.get('flag', '').strip()
+        maquina_slug = request.data.get('maquina', '').strip()
 
-    if (timezone.now() - creada_en).total_seconds() > Flag.FLAG_TTL_MINUTOS * 60:
-        return Response(
-            {'status': 'error', 'message': 'FLAG caducada'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        if not token or not maquina_slug:
+            return Response(
+                {'status': 'error', 'message': 'Faltan parámetros: flag o maquina'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-    # 3. Buscar la máquina
-    try:
-        maquina = Maquina.objects.get(nombre=maquina_slug)
-    except Maquina.DoesNotExist:
-        return Response(
-            {'status': 'error', 'message': 'Máquina no reconocida'},
-            status=status.HTTP_404_NOT_FOUND
-        )
+        # 1. Verificar firma HMAC
+        if not _verificar_hmac_flag(token):
+            return Response(
+                {'status': 'error', 'message': 'FLAG inválida: firma incorrecta'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-    # 4. Evitar duplicados
-    if Flag.objects.filter(token=token).exists():
-        return Response(
-            {'status': 'error', 'message': 'FLAG ya registrada'},
-            status=status.HTTP_409_CONFLICT
-        )
+        # 2. Extraer timestamp del token y calcular caducidad
+        try:
+            ts_unix = int(token.split('-')[2])
+            creada_en = timezone.datetime.fromtimestamp(ts_unix, tz=timezone.utc)
+        except (ValueError, IndexError):
+            return Response(
+                {'status': 'error', 'message': 'FLAG inválida: timestamp malformado'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-    # 5. Guardar la FLAG
-    try:
+        if (timezone.now() - creada_en).total_seconds() > Flag.FLAG_TTL_MINUTOS * 60:
+            return Response(
+                {'status': 'error', 'message': 'FLAG caducada'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 3. Buscar la máquina
+        try:
+            maquina = Maquina.objects.get(nombre=maquina_slug)
+        except Maquina.DoesNotExist:
+            return Response(
+                {'status': 'error', 'message': f'Máquina no reconocida: {maquina_slug}'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # 4. Evitar duplicados
+        if Flag.objects.filter(token=token).exists():
+            return Response(
+                {'status': 'error', 'message': 'FLAG ya registrada'},
+                status=status.HTTP_409_CONFLICT
+            )
+
+        # 5. Guardar la FLAG
         Flag.objects.create(token=token, maquina=maquina, creada_en=creada_en)
+
+        return Response(
+            {'status': 'success', 'message': 'FLAG registrada. El usuario ya puede canjearla en la web.'},
+            status=status.HTTP_201_CREATED
+        )
+
     except Exception as e:
         return Response(
-            {'status': 'error', 'message': f'Error al guardar la FLAG: {str(e)}'},
+            {'status': 'error', 'message': f'Error interno: {str(e)}'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-
-    return Response(
-        {'status': 'success', 'message': 'FLAG registrada. El usuario ya puede canjearla en la web.'},
-        status=status.HTTP_201_CREATED
-    )
 
 
 @extend_schema(
