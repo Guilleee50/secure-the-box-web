@@ -2,36 +2,446 @@
 
 {% block content %}
 <div class="max-w-4xl mx-auto mt-10 p-6 bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-lg mb-16">
-    <div class="border-b border-gray-700 pb-4 mb-6">
+
+    <!-- Header -->
+    <div class="border-b border-gray-700 pb-4 mb-8">
         <h1 class="text-3xl font-bold text-white flex items-center gap-2">
             <span class="text-[#10b981]">/</span> Documentación Oficial
         </h1>
-        <p class="text-gray-400 mt-2 font-mono text-sm">Secure the Box - Manual del Agente SOC</p>
+        <p class="text-gray-400 mt-2 font-mono text-sm">Secure the Box — Manual del Agente SOC</p>
     </div>
 
-    <div class="space-y-8 text-gray-300">
-        
-        <section>
+    <!-- Tabla de contenidos -->
+    <div class="bg-black border border-gray-700 rounded p-5 mb-10">
+        <p class="text-[#10b981] font-mono font-bold text-sm mb-3">## Índice</p>
+        <ul class="space-y-1 text-sm font-mono text-gray-300">
+            <li><a href="#intro"       class="hover:text-[#10b981] transition-colors">1. ¿Qué es Secure the Box?</a></li>
+            <li><a href="#registro"    class="hover:text-[#10b981] transition-colors">2. Registro y configuración de cuenta</a></li>
+            <li><a href="#api-key"     class="hover:text-[#10b981] transition-colors">3. Sistema de FLAGS</a></li>
+            <li><a href="#normativa"   class="hover:text-[#10b981] transition-colors">4. Normativa y Reglas de Uso</a></li>
+            <li><a href="#maquinas"    class="hover:text-[#10b981] transition-colors">5. Despliegue de Máquinas</a></li>
+            <li><a href="#script"      class="hover:text-[#10b981] transition-colors">6. Script de Evaluación</a></li>
+            <li><a href="#puntos"      class="hover:text-[#10b981] transition-colors">7. Sistema de Puntos y Ranking</a></li>
+            <li><a href="#api-ref"     class="hover:text-[#10b981] transition-colors">8. Referencia de la API</a></li>
+            <li><a href="#faq"         class="hover:text-[#10b981] transition-colors">9. Preguntas Frecuentes</a></li>
+        </ul>
+    </div>
+
+    <div class="space-y-12 text-gray-300">
+
+        <!-- 1. Introducción -->
+        <section id="intro">
             <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
-                <span class="text-[#10b981]">#</span> 1. Despliegue de Máquinas
+                <span class="text-[#10b981]">#</span> 1. ¿Qué es Secure the Box?
             </h2>
-            <p class="mb-3">Para iniciar una máquina vulnerable en tu entorno local, asegúrate de tener Docker instalado y ejecuta el siguiente comando en la raíz del repositorio de la máquina:</p>
-            <div class="bg-black p-4 rounded border border-gray-700 font-mono text-sm text-[#10b981]">
-                docker-compose up -d
+            <p class="mb-3 leading-relaxed">
+                <span class="text-white font-semibold">Secure the Box</span> es una plataforma de entrenamiento Blue Team orientada a analistas SOC.
+                El objetivo es aprender técnicas de <span class="text-[#10b981]">hardening</span> y defensa aplicadas a máquinas vulnerables en un entorno controlado.
+            </p>
+            <p class="leading-relaxed">
+                Cada máquina presenta una serie de configuraciones inseguras que debes identificar y corregir.
+                Una vez aplicadas, un script de evaluación verifica tu trabajo y, si todo está correcto,
+                registra tu logro automáticamente y te otorga los puntos correspondientes.
+            </p>
+
+            <div class="mt-5 bg-black border border-[#10b981]/30 rounded p-4">
+                <p class="text-[#10b981] font-mono text-xs font-bold mb-2">// FLUJO BÁSICO</p>
+                <ol class="list-decimal list-inside space-y-1 text-sm font-mono text-gray-400">
+                    <li>Regístrate y acepta la normativa.</li>
+                    <li>Descarga y despliega la máquina con Docker.</li>
+                    <li>Aplica las medidas de hardening.</li>
+                    <li>Ejecuta el script de evaluación — si todo está correcto, genera una <span class="text-white">FLAG</span>.</li>
+                    <li>Canjea la FLAG desde tu panel antes de que caduque (30 min).</li>
+                    <li>Comprueba tus puntos en el ranking global.</li>
+                </ol>
             </div>
         </section>
 
-        <section>
+        <hr class="border-gray-700">
+
+        <!-- 2. Registro -->
+        <section id="registro">
             <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
-                <span class="text-[#10b981]">#</span> 2. Uso del Script de Evaluación
+                <span class="text-[#10b981]">#</span> 2. Registro y configuración de cuenta
             </h2>
-            <p class="mb-3">Una vez hayas aplicado las políticas de Hardening, ejecuta el script de validación pasando tu API Key como parámetro:</p>
-            <div class="bg-black p-4 rounded border border-gray-700 font-mono text-sm text-[#10b981]">
-                python3 check_hardening.py --api-key TU_API_KEY_AQUI
+            <p class="mb-4 leading-relaxed">
+                Para participar necesitas una cuenta. El registro es gratuito y únicamente requiere un nombre de usuario y una contraseña.
+            </p>
+
+            <div class="space-y-4">
+                <div class="border border-gray-700 rounded p-4">
+                    <p class="text-white font-semibold text-sm mb-1">Crear cuenta</p>
+                    <p class="text-sm text-gray-400">Accede a <span class="font-mono text-[#10b981]">/register</span> y completa el formulario. Tu perfil y API Key se generan automáticamente al registrarte.</p>
+                </div>
+                <div class="border border-gray-700 rounded p-4">
+                    <p class="text-white font-semibold text-sm mb-1">Editar perfil</p>
+                    <p class="text-sm text-gray-400">Desde el panel (<span class="font-mono text-[#10b981]">/panel</span>) puedes actualizar tu nombre, apellidos y dirección de email en cualquier momento.</p>
+                </div>
+                <div class="border border-gray-700 rounded p-4">
+                    <p class="text-white font-semibold text-sm mb-1">Iniciar y cerrar sesión</p>
+                    <p class="text-sm text-gray-400">Usa los enlaces del menú de navegación. La sesión se mantiene activa hasta que cierres sesión manualmente.</p>
+                </div>
             </div>
-            <p class="mt-3 text-sm text-gray-400">Nota: Puedes encontrar tu API Key en tu panel de perfil tras iniciar sesión.</p>
+        </section>
+
+        <hr class="border-gray-700">
+
+        <!-- 3. Sistema de FLAGS -->
+        <section id="api-key">
+            <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                <span class="text-[#10b981]">#</span> 3. Sistema de FLAGS
+            </h2>
+            <p class="mb-4 leading-relaxed">
+                La validación de máquinas se basa en <span class="text-white font-semibold">FLAGS firmadas criptográficamente</span>.
+                Cuando el script de evaluación verifica que el hardening es correcto, genera una FLAG única con HMAC-SHA256 y la deposita automáticamente en la plataforma.
+                Tú solo tienes que canjearla desde tu panel.
+            </p>
+
+            <div class="bg-black p-4 rounded border border-gray-700 font-mono text-sm mb-5">
+                <span class="text-gray-500"># Formato de FLAG</span><br>
+                <span class="text-[#10b981]">STB-&lt;maquina&gt;-&lt;timestamp&gt;-&lt;hmac&gt;</span><br><br>
+                <span class="text-gray-500"># Ejemplo</span><br>
+                <span class="text-[#10b981]">STB-linux-hardening-1716048000-a3f8b2c14d5e6789</span>
+            </div>
+
+            <div class="space-y-3 text-sm">
+                <div class="flex gap-3 items-start">
+                    <span class="text-[#10b981] font-mono mt-0.5">→</span>
+                    <p><span class="text-white">Generación automática:</span> el script crea y deposita la FLAG si el hardening pasa todos los checks. No tienes que copiarla manualmente del script.</p>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <span class="text-[#10b981] font-mono mt-0.5">→</span>
+                    <p><span class="text-white">Caducidad:</span> cada FLAG es válida durante <span class="text-white">30 minutos</span> desde su generación. Pasado ese tiempo queda invalidada.</p>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <span class="text-[#10b981] font-mono mt-0.5">→</span>
+                    <p><span class="text-white">Un solo uso:</span> una FLAG solo puede canjearse una vez. No es posible reutilizarla ni compartirla con otros usuarios.</p>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <span class="text-[#10b981] font-mono mt-0.5">→</span>
+                    <p><span class="text-white">Canjeo:</span> accede a tu panel (<span class="font-mono text-[#10b981]">/panel</span>) y pega la FLAG en la sección correspondiente para obtener los puntos.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-gray-700">
+
+        <!-- 4. Normativa -->
+        <section id="normativa">
+            <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                <span class="text-[#10b981]">#</span> 4. Normativa y Reglas de Uso
+            </h2>
+            <p class="mb-4 leading-relaxed">
+                Antes de acceder al panel debes leer y aceptar la <span class="text-white font-semibold">Normativa de Uso</span>.
+                Recoge las reglas de conducta de la plataforma y las restricciones sobre las actividades permitidas.
+            </p>
+
+            <div class="bg-black border border-yellow-700/40 rounded p-4 text-sm">
+                <p class="text-yellow-400 font-mono font-bold mb-2">! ADVERTENCIA</p>
+                <ul class="space-y-1 text-gray-400 list-disc list-inside">
+                    <li>Está terminantemente prohibido atacar la infraestructura de la plataforma.</li>
+                    <li>Solo puedes interactuar con las máquinas asignadas en tu entorno local.</li>
+                    <li>El intercambio o venta de FLAGS o API Keys está prohibido y conlleva la expulsión permanente.</li>
+                    <li>Toda la actividad queda registrada y puede ser auditada.</li>
+                </ul>
+            </div>
+
+            <p class="mt-3 text-sm text-gray-400">Consulta la normativa completa en <a href="/normativa" class="text-[#10b981] hover:underline">/normativa</a>.</p>
+        </section>
+
+        <hr class="border-gray-700">
+
+        <!-- 5. Despliegue de Máquinas -->
+        <section id="maquinas">
+            <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                <span class="text-[#10b981]">#</span> 5. Despliegue de Máquinas
+            </h2>
+            <p class="mb-4 leading-relaxed">
+                Cada máquina se distribuye como un entorno Docker autocontenido. Necesitas tener instalados
+                <a href="https://docs.docker.com/get-docker/" target="_blank" class="text-[#10b981] hover:underline">Docker</a> y
+                <a href="https://docs.docker.com/compose/" target="_blank" class="text-[#10b981] hover:underline">Docker Compose</a>
+                en tu sistema.
+            </p>
+
+            <div class="space-y-5">
+                <div>
+                    <p class="text-white font-semibold text-sm mb-2">Paso 1 — Descarga el repositorio de la máquina</p>
+                    <div class="bg-black p-4 rounded border border-gray-700 font-mono text-sm text-[#10b981]">
+                        git clone &lt;url-del-repositorio-de-la-maquina&gt;<br>
+                        cd &lt;nombre-de-la-maquina&gt;
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-white font-semibold text-sm mb-2">Paso 2 — Levanta el entorno</p>
+                    <div class="bg-black p-4 rounded border border-gray-700 font-mono text-sm text-[#10b981]">
+                        docker-compose up -d
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">El flag <span class="font-mono">-d</span> arranca los contenedores en segundo plano.</p>
+                </div>
+
+                <div>
+                    <p class="text-white font-semibold text-sm mb-2">Paso 3 — Comprueba que está activa</p>
+                    <div class="bg-black p-4 rounded border border-gray-700 font-mono text-sm text-[#10b981]">
+                        docker-compose ps
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Todos los servicios deben aparecer con estado <span class="font-mono">Up</span>.</p>
+                </div>
+
+                <div>
+                    <p class="text-white font-semibold text-sm mb-2">Paso 4 — Detener la máquina (cuando termines)</p>
+                    <div class="bg-black p-4 rounded border border-gray-700 font-mono text-sm text-[#10b981]">
+                        docker-compose down
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 bg-black border border-gray-700 rounded p-4 text-sm">
+                <p class="text-[#10b981] font-mono font-bold mb-2">// REQUISITOS DE SISTEMA</p>
+                <ul class="space-y-1 text-gray-400 list-disc list-inside font-mono text-xs">
+                    <li>Docker Engine &gt;= 24.x</li>
+                    <li>Docker Compose &gt;= 2.x</li>
+                    <li>Python &gt;= 3.10 (para el script de evaluación)</li>
+                    <li>Conexión a Internet para descargar imágenes Docker</li>
+                </ul>
+            </div>
+        </section>
+
+        <hr class="border-gray-700">
+
+        <!-- 6. Script de Evaluación -->
+        <section id="script">
+            <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                <span class="text-[#10b981]">#</span> 6. Script de Evaluación
+            </h2>
+            <p class="mb-4 leading-relaxed">
+                El script <span class="font-mono text-white">check_hardening.py</span> incluido en el repositorio de cada máquina realiza dos cosas:
+                verifica que las medidas de hardening son correctas y, si todo pasa, genera y deposita automáticamente una <span class="text-white font-semibold">FLAG firmada</span> en la plataforma.
+            </p>
+
+            <div class="space-y-5">
+                <div>
+                    <p class="text-white font-semibold text-sm mb-2">Uso básico</p>
+                    <div class="bg-black p-4 rounded border border-gray-700 font-mono text-sm text-[#10b981]">
+                        python3 check_hardening.py
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">No se necesita ningún parámetro adicional. La autenticación con la plataforma es interna y se gestiona mediante HMAC.</p>
+                </div>
+
+                <div>
+                    <p class="text-white font-semibold text-sm mb-2">Posibles resultados</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex gap-3 items-start bg-black border border-green-900/40 rounded p-3">
+                            <span class="text-[#10b981] font-mono font-bold shrink-0">OK</span>
+                            <p class="text-gray-400">Todos los checks han pasado. El script deposita la FLAG en la plataforma. Ve a tu panel y canjéala antes de 30 minutos.</p>
+                        </div>
+                        <div class="flex gap-3 items-start bg-black border border-red-900/40 rounded p-3">
+                            <span class="text-red-400 font-mono font-bold shrink-0">FAIL</span>
+                            <p class="text-gray-400">Uno o más checks han fallado. El script indica qué medidas no se han aplicado correctamente. No se genera FLAG hasta que todo esté correcto.</p>
+                        </div>
+                        <div class="flex gap-3 items-start bg-black border border-yellow-900/40 rounded p-3">
+                            <span class="text-yellow-400 font-mono font-bold shrink-0">ERR</span>
+                            <p class="text-gray-400">Error al depositar la FLAG en la plataforma. Comprueba tu conectividad a Internet y vuelve a ejecutar el script.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-white font-semibold text-sm mb-2">Paso siguiente — canjea la FLAG</p>
+                    <p class="text-sm text-gray-400 mb-3">Cuando el script termina con éxito, la FLAG ya está depositada. Entra en tu panel, localiza la sección <em>"Canjear FLAG"</em> y pégala para obtener los puntos.</p>
+                    <div class="bg-black border border-[#10b981]/20 rounded p-4 font-mono text-xs">
+                        <p class="text-gray-500 mb-1">// La FLAG tendrá este aspecto</p>
+                        <p class="text-[#10b981]">STB-linux-hardening-1716048000-a3f8b2c14d5e6789</p>
+                        <p class="text-gray-500 mt-2 mb-1">// Caduca a los 30 minutos — un solo uso</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="mt-4 text-xs text-gray-500">Nota: si la máquina ya fue completada por tu cuenta, el canje será rechazado y no se registrarán puntos duplicados.</p>
+        </section>
+
+        <hr class="border-gray-700">
+
+        <!-- 7. Puntos y Ranking -->
+        <section id="puntos">
+            <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                <span class="text-[#10b981]">#</span> 7. Sistema de Puntos y Ranking
+            </h2>
+            <p class="mb-4 leading-relaxed">
+                Cada máquina tiene asignada una puntuación según su nivel de dificultad. Los puntos se acumulan en tu perfil
+                al canjear la FLAG correspondiente y determinan tu posición en el ranking global.
+            </p>
+
+            <div class="bg-black border border-gray-700 rounded p-4 font-mono text-sm mb-5">
+                <table class="w-full text-xs">
+                    <thead>
+                        <tr class="text-gray-500 border-b border-gray-700">
+                            <th class="text-left pb-2 pr-6">Dificultad</th>
+                            <th class="text-left pb-2">Puntos base</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-400">
+                        <tr class="border-b border-gray-800">
+                            <td class="py-2 pr-6"><span class="text-green-400">Fácil</span></td>
+                            <td class="py-2">50 pts</td>
+                        </tr>
+                        <tr class="border-b border-gray-800">
+                            <td class="py-2 pr-6"><span class="text-yellow-400">Media</span></td>
+                            <td class="py-2">100 pts</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-6"><span class="text-red-400">Difícil</span></td>
+                            <td class="py-2">200 pts</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="space-y-3 text-sm">
+                <div class="flex gap-3 items-start">
+                    <span class="text-[#10b981] font-mono mt-0.5">→</span>
+                    <p><span class="text-white">Los puntos se asignan al canjear la FLAG</span> desde el panel, no al ejecutar el script. Asegúrate de canjearla antes de que caduque.</p>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <span class="text-[#10b981] font-mono mt-0.5">→</span>
+                    <p><span class="text-white">Ranking global:</span> los 5 mejores agentes aparecen en la página principal. Tu posición se actualiza inmediatamente tras el canjeo.</p>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <span class="text-[#10b981] font-mono mt-0.5">→</span>
+                    <p><span class="text-white">Sin repeticiones:</span> cada máquina solo puede completarse una vez por cuenta. Si intentas canjear una FLAG de una máquina ya completada, será rechazada.</p>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <span class="text-[#10b981] font-mono mt-0.5">→</span>
+                    <p><span class="text-white">Historial:</span> en tu panel puedes ver el listado completo de máquinas completadas con los puntos obtenidos en cada una.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-gray-700">
+
+        <!-- 8. Referencia de la API -->
+        <section id="api-ref">
+            <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                <span class="text-[#10b981]">#</span> 8. Referencia de la API
+            </h2>
+            <p class="mb-5 leading-relaxed">
+                La plataforma expone una API REST utilizada internamente por el script de evaluación.
+                Puedes consultarla si quieres integraciones propias o depurar el comportamiento del script.
+            </p>
+
+            <!-- POST /flags/registrar/ -->
+            <div class="mb-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="bg-blue-900/60 text-blue-300 font-mono text-xs font-bold px-2 py-1 rounded">POST</span>
+                    <span class="font-mono text-white text-sm">/api/v1/flags/registrar/</span>
+                </div>
+                <p class="text-sm text-gray-400 mb-2">Deposita una FLAG firmada con HMAC-SHA256. Llamado automáticamente por el script de evaluación cuando el hardening es correcto.</p>
+                <div class="bg-black p-4 rounded border border-gray-700 font-mono text-xs">
+                    <p class="text-gray-500 mb-1">// Body (JSON)</p>
+                    <p class="text-white">{</p>
+                    <p class="text-white pl-4">"flag": <span class="text-yellow-300">"STB-linux-hardening-1716048000-a3f8b2c14d5e6789"</span>,</p>
+                    <p class="text-white pl-4">"machine_name": <span class="text-yellow-300">"linux-hardening"</span></p>
+                    <p class="text-white">}</p>
+                    <p class="text-gray-500 mt-2 mb-1">// Respuesta exitosa (201)</p>
+                    <p class="text-white">{</p>
+                    <p class="text-white pl-4">"message": <span class="text-yellow-300">"FLAG registrada correctamente"</span></p>
+                    <p class="text-white">}</p>
+                </div>
+            </div>
+
+            <!-- POST /flags/canjear/ -->
+            <div class="mb-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="bg-blue-900/60 text-blue-300 font-mono text-xs font-bold px-2 py-1 rounded">POST</span>
+                    <span class="font-mono text-white text-sm">/api/v1/flags/canjear/</span>
+                </div>
+                <p class="text-sm text-gray-400 mb-2">Canjea una FLAG previamente depositada. Requiere sesión web activa. Otorga los puntos al usuario autenticado.</p>
+                <div class="bg-black p-4 rounded border border-gray-700 font-mono text-xs">
+                    <p class="text-gray-500 mb-1">// Body (JSON)</p>
+                    <p class="text-white">{</p>
+                    <p class="text-white pl-4">"flag": <span class="text-yellow-300">"STB-linux-hardening-1716048000-a3f8b2c14d5e6789"</span></p>
+                    <p class="text-white">}</p>
+                    <p class="text-gray-500 mt-2 mb-1">// Respuesta exitosa (200)</p>
+                    <p class="text-white">{</p>
+                    <p class="text-white pl-4">"message": <span class="text-yellow-300">"FLAG canjeada correctamente"</span>,</p>
+                    <p class="text-white pl-4">"points": <span class="text-[#10b981]">100</span></p>
+                    <p class="text-white">}</p>
+                </div>
+            </div>
+
+            <!-- POST /get_user_data -->
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="bg-blue-900/60 text-blue-300 font-mono text-xs font-bold px-2 py-1 rounded">POST</span>
+                    <span class="font-mono text-white text-sm">/api/v1/get_user_data</span>
+                </div>
+                <p class="text-sm text-gray-400 mb-2">Devuelve el perfil del usuario asociado a la API Key: nombre, puntos totales y máquinas completadas.</p>
+                <div class="bg-black p-4 rounded border border-gray-700 font-mono text-xs">
+                    <p class="text-gray-500 mb-1">// Headers</p>
+                    <p class="text-[#10b981]">X-API-KEY: &lt;tu_api_key&gt;</p>
+                    <p class="text-gray-500 mt-2 mb-1">// Respuesta exitosa (200)</p>
+                    <p class="text-white">{</p>
+                    <p class="text-white pl-4">"username": <span class="text-yellow-300">"agent47"</span>,</p>
+                    <p class="text-white pl-4">"puntos_totales": <span class="text-[#10b981]">350</span>,</p>
+                    <p class="text-white pl-4">"maquinas_completadas": <span class="text-yellow-300">["web-basics", "linux-hardening"]</span></p>
+                    <p class="text-white">}</p>
+                </div>
+            </div>
+
+            <p class="mt-5 text-xs text-gray-500">
+                Para una documentación interactiva completa visita
+                <a href="/api/docs/" class="text-[#10b981] hover:underline font-mono">/api/docs/</a>
+                (requiere permisos de administrador o entorno de desarrollo).
+            </p>
+        </section>
+
+        <hr class="border-gray-700">
+
+        <!-- 9. FAQ -->
+        <section id="faq">
+            <h2 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                <span class="text-[#10b981]">#</span> 9. Preguntas Frecuentes
+            </h2>
+
+            <div class="space-y-5">
+                <div class="border border-gray-700 rounded p-4">
+                    <p class="text-white font-semibold text-sm mb-1">El script termina con OK pero no aparece ninguna FLAG en el panel.</p>
+                    <p class="text-sm text-gray-400">Recarga la página del panel. Si la FLAG sigue sin aparecer, comprueba que el script tiene conectividad con la plataforma y que no hay un error silencioso en la respuesta del endpoint <span class="font-mono text-[#10b981]">/api/v1/flags/registrar/</span>.</p>
+                </div>
+
+                <div class="border border-gray-700 rounded p-4">
+                    <p class="text-white font-semibold text-sm mb-1">He tardado más de 30 minutos en canjear la FLAG y ya no es válida.</p>
+                    <p class="text-sm text-gray-400">Las FLAGS caducan a los 30 minutos por seguridad. Vuelve a ejecutar el script de evaluación para generar una nueva, siempre que el hardening siga aplicado correctamente.</p>
+                </div>
+
+                <div class="border border-gray-700 rounded p-4">
+                    <p class="text-white font-semibold text-sm mb-1">¿Puedo completar la misma máquina varias veces para ganar más puntos?</p>
+                    <p class="text-sm text-gray-400">No. Si intentas canjear una FLAG de una máquina que ya completaste, el sistema la rechazará. Cada máquina solo suma puntos una vez por cuenta.</p>
+                </div>
+
+                <div class="border border-gray-700 rounded p-4">
+                    <p class="text-white font-semibold text-sm mb-1">No veo los puntos en mi panel después de canjear la FLAG.</p>
+                    <p class="text-sm text-gray-400">Los puntos se actualizan al instante. Si no aparecen, recarga la página. Si el canjeo devolvió un error, revisa el mensaje: puede ser FLAG caducada, ya usada o máquina ya completada.</p>
+                </div>
+
+                <div class="border border-gray-700 rounded p-4">
+                    <p class="text-white font-semibold text-sm mb-1">¿Necesito introducir mi API Key en el script?</p>
+                    <p class="text-sm text-gray-400">No. El script usa autenticación HMAC interna y no requiere ningún parámetro de usuario. Simplemente ejecútalo con <span class="font-mono text-[#10b981]">python3 check_hardening.py</span>.</p>
+                </div>
+
+                <div class="border border-gray-700 rounded p-4">
+                    <p class="text-white font-semibold text-sm mb-1">El contenedor Docker no arranca. ¿Qué hago?</p>
+                    <p class="text-sm text-gray-400">Ejecuta <span class="font-mono text-[#10b981]">docker-compose logs</span> para ver los errores. Asegúrate de tener los puertos requeridos libres y de que el daemon de Docker está activo (<span class="font-mono text-[#10b981]">docker info</span>).</p>
+                </div>
+            </div>
         </section>
 
     </div>
+
+    <!-- Footer de documentación -->
+    <div class="border-t border-gray-700 mt-10 pt-5 text-center text-xs text-gray-600 font-mono">
+        Secure the Box — Documentación v1.0 &nbsp;|&nbsp; ¿Problemas? Contacta con el equipo de administración.
+    </div>
+
 </div>
 {% endblock content %}
