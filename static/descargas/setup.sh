@@ -7,8 +7,22 @@ echo "Actualizando la lista de paquetes..."
 sudo apt update
 
 # 2. Instalar dependencias del sistema
-echo "Instalando dependencias del sistema (python3-tk, python3-venv, git, openssh-server, nano)..."
-sudo apt install -y python3-tk python3-venv git openssh-server nano
+echo "Instalando dependencias del sistema..."
+sudo apt install -y python3-tk python3-venv git openssh-server nano docker.io docker-buildx
+
+# Identificar al usuario real (incluso si se usa sudo) y configurar permisos de Docker
+TARGET_USER=${SUDO_USER:-$USER}
+echo "Configurando permisos de Docker para el usuario: $TARGET_USER..."
+
+# A) Permiso permanente (se aplicará de forma natural en los próximos reinicios)
+sudo usermod -aG docker "$TARGET_USER"
+
+# B) Iniciar Docker por si acaba de ser instalado
+sudo systemctl enable --now docker
+
+# C) TRUCO INMEDIATO: Dar permisos al usuario sobre el socket actual sin cerrar sesión
+echo "Aplicando permisos de sesión inmediatos..."
+sudo setfacl -m user:"$TARGET_USER":rw /var/run/docker.sock
 
 # 3. Clonar o actualizar el repositorio de GitHub
 REPO_DIR="secure-the-box"
