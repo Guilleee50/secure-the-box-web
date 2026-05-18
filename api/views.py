@@ -290,7 +290,13 @@ def registrar_flag(request):
         )
 
     # 5. Guardar la FLAG
-    Flag.objects.create(token=token, maquina=maquina, creada_en=creada_en)
+    try:
+        Flag.objects.create(token=token, maquina=maquina, creada_en=creada_en)
+    except Exception as e:
+        return Response(
+            {'status': 'error', 'message': f'Error al guardar la FLAG: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
     return Response(
         {'status': 'success', 'message': 'FLAG registrada. El usuario ya puede canjearla en la web.'},
